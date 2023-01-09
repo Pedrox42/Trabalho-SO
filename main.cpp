@@ -9,7 +9,7 @@ using namespace std;
 
 void *thread_loop(void *arg)
 {
-    sleep(20);
+    sleep(40);
     pthread_detach(pthread_self());
     return NULL;
 }
@@ -20,6 +20,7 @@ int main()
 
     vector<pid_t> processos(0);
     vector<string> nomes(0);
+    vector<pthread_t> threads(0);
 
     processos.push_back(parentId);
     nomes.push_back("Processo Principal");
@@ -86,6 +87,7 @@ int main()
                 pthread_t threadId;
                 pthread_create(&threadId, NULL, thread_loop, NULL);
                 cout << "thread criada com sucesso!" << endl;
+                threads.push_back(threadId);
                 break;
             }
 
@@ -104,9 +106,17 @@ int main()
             case '6':
             {
                 pthread_t threadParaSerEncerrada;
+                for(int i = 0; i < threads.size(); i++){
+                    cout << threads[i] << endl;
+                }
                 cout << "Digite o id da thread do processo principal que deseja encerrar: ";
                 cin >> threadParaSerEncerrada;
-                pthread_kill(threadParaSerEncerrada, 9);
+                pthread_cancel(threadParaSerEncerrada);
+                for (int i = 0; i < threads.size(); i++) {
+                    if(threads[i] == threadParaSerEncerrada){
+                        threads.erase(threads.begin() + i);
+                    }
+                }
                 break;
             }
 
